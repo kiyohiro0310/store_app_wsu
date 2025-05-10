@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql" | "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  name       String
+  createdAt  DateTime   @default(now())
+  userType   UserType  @default(CUSTOMER)
+  products   Product[]  // Products the user owns
+  orders     Order[]    // Orders placed by the user
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  currency    String
+  category    String
+  imageUrl    String
+  inStock     Boolean
+  tags        String[]
+  rating      Float?
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id])
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id         String       @id @default(cuid())
+  user       User         @relation(fields: [userId], references: [id])
+  userId     String
+  total      Float
+  createdAt  DateTime     @default(now())
+  status     OrderStatus  @default(PENDING)
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  order           Order    @relation(fields: [orderId], references: [id])
+  orderId         String
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       String
+  quantity        Int
+  priceAtPurchase Float
+}
+
+enum UserType {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  SHIPPED
+}
