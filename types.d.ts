@@ -9,3 +9,10 @@ export type Product = {
   rating?: number;
   tags: string[];
 };
+
+export type Filter = {
+  category?: string;
+  name?: string;
+  tag?: string;
+};
+

@@ -3,26 +3,14 @@
 import Loading from "@/components/fragments/ui/Loading";
 import AppLayout from "../AppLayout";
 import { useEffect, useState } from "react";
+import { fetchUserSession } from "@/components/auth/CheckLogin";
 
 const CartPage = () => {
 
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    async function fetchSession() {
-      const res = await fetch("/api/auth/session");
-      const data = await res.json();
-
-      if (!data || !data.user || data.user.name.toLowerCase() !== "admin") {
-        alert("You are not authorized to access this page.");
-        window.location.href = "/";
-        setIsAuthorized(false);
-      } else {
-        setIsAuthorized(true);
-      }
-    }
-
-    fetchSession();
+    fetchUserSession(setIsAuthorized);
   }, []);
 
   if (isAuthorized === null) {

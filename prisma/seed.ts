@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 
-
 const prisma = new PrismaClient();
 
 async function main() {
@@ -17,21 +16,17 @@ async function main() {
     data: {
       email: 'admin@example.com',
       name: 'Admin',
+      password: '$2b$10$LK.dFMzaI4T62h8orlRFO.if996dHZaH6exOFZ5DRudhtdpanLjlG',
       userType: 'ADMIN',
     },
   });
 
-  const alice = await prisma.user.create({
+  const owner = await prisma.user.create({
     data: {
-      email: 'alice@example.com',
-      name: 'Alice',
-    },
-  });
-
-  const bob = await prisma.user.create({
-    data: {
-      email: 'bob@example.com',
-      name: 'Bob',
+      email: 'owner@example.com',
+      name: 'Product Owner',
+      password: '$2b$10$LK.dFMzaI4T62h8orlRFO.if996dHZaH6exOFZ5DRudhtdpanLjlG',
+      userType: 'CUSTOMER',
     },
   });
 
@@ -47,7 +42,8 @@ async function main() {
       inStock: true,
       tags: ['electronics', 'accessory'],
       rating: 4.5,
-      ownerId: alice.id,
+      releaseDate: new Date('2023-01-15'),
+      ownerId: owner.id,
     },
   });
 
@@ -62,11 +58,12 @@ async function main() {
       inStock: true,
       tags: ['keyboard', 'mechanical'],
       rating: 4.8,
-      ownerId: alice.id,
+      releaseDate: new Date('2023-02-10'),
+      ownerId: owner.id,
     },
   });
 
-  const headphones = await prisma.product.create({
+  await prisma.product.create({
     data: {
       name: 'Noise Cancelling Headphones',
       description: 'Over-ear headphones with active noise cancellation.',
@@ -77,11 +74,12 @@ async function main() {
       inStock: true,
       tags: ['audio', 'headphones'],
       rating: 4.7,
-      ownerId: bob.id,
+      releaseDate: new Date('2023-03-05'),
+      ownerId: owner.id,
     },
   });
 
-  const monitors = await prisma.product.create({
+  await prisma.product.create({
     data: {
       name: '4K Monitor',
       description: '27-inch 4K UHD monitor with HDR support.',
@@ -92,14 +90,15 @@ async function main() {
       inStock: true,
       tags: ['monitor', '4k'],
       rating: 4.6,
-      ownerId: bob.id,
+      releaseDate: new Date('2023-04-20'),
+      ownerId: owner.id,
     },
   });
 
-  // Create order for Bob
-  const order = await prisma.order.create({
+  // Create order for Admin
+  await prisma.order.create({
     data: {
-      userId: bob.id,
+      userId: admin.id,
       total: 109.98,
       status: 'PAID',
       items: {

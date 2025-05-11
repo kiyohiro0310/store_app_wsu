@@ -1,26 +1,20 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "UserType" AS ENUM ('ADMIN', 'CUSTOMER');
 
-  - The primary key for the `User` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PAID', 'CANCELLED', 'SHIPPED');
 
--- DropForeignKey
-ALTER TABLE "Post" DROP CONSTRAINT "Post_userId_fkey";
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userType" "UserType" NOT NULL DEFAULT 'CUSTOMER',
 
--- AlterTable
-ALTER TABLE "User" DROP CONSTRAINT "User_pkey",
-ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ALTER COLUMN "id" DROP DEFAULT,
-ALTER COLUMN "id" SET DATA TYPE TEXT,
-ADD CONSTRAINT "User_pkey" PRIMARY KEY ("id");
-DROP SEQUENCE "User_id_seq";
-
--- DropTable
-DROP TABLE "Post";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Product" (
@@ -60,6 +54,9 @@ CREATE TABLE "OrderItem" (
 
     CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
