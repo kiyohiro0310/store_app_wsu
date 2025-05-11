@@ -20,8 +20,8 @@ export async function fetchUserSession(
   const data = await res.json();
 
   if (!data || !data.user) {
-    alert("You are not authorized to access this page.");
-    window.location.href = "/";
+    alert("You are not authorized to access this page. Please login first");
+    window.location.href = "/api/auth/signin";
     setIsAuthorized(false);
   } else {
     setIsAuthorized(true);

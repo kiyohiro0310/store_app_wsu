@@ -13,12 +13,8 @@ const CartPage = () => {
     fetchUserSession(setIsAuthorized);
   }, []);
 
-  if (isAuthorized === null) {
+  if (isAuthorized === null || !isAuthorized) {
     return <Loading />;
-  }
-
-  if (!isAuthorized) {
-    return null; // Prevent rendering anything after redirection
   }
 
 

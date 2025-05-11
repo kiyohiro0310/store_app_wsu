@@ -2,10 +2,10 @@ import { errorResponse } from "@/functions/res/error_response";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
-const prismaClient = new PrismaClient();
 
 export async function POST(request: Request) {
   const { username, email, password } = await request.json();
+  const prismaClient = new PrismaClient();
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
