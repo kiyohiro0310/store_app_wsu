@@ -7,7 +7,6 @@ import Link from "next/link";
 export function Header() {
   const { data: session, status } = useSession();
 
-
   return (
     <header className="bg-white shadow-md">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">

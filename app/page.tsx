@@ -12,6 +12,7 @@ import Products from "@/components/home/Products";
 import { Product } from "@/types";
 import Loading from "@/components/fragments/ui/Loading";
 import AppLayout from "./AppLayout";
+import ErrorPage from "@/components/fragments/ui/Error";
 
 const qc = new QueryClient();
 export default function Home() {
@@ -25,7 +26,7 @@ export default function Home() {
       queryFn: async () => {
         const res = await fetch("/api/products");
         if (!res.ok) {
-          return <div>Error occured. </div>;
+          return <ErrorPage />;
         }
         return res.json();
       },
