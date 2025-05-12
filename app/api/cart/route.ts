@@ -1,11 +1,11 @@
 import { dataResponse } from "@/functions/res/data_response";
 import { errorResponse } from "@/functions/res/error_response";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
 import { getUserByEmail } from "@/functions/user";
 import { addOrderItemToDB, getPendingCartItems } from "@/functions/order";
 import { OrderItem } from "@/types";
 import { getProductById } from "@/functions/products";
+import { authOptions } from "../auth/[...nextauth]/options";
 
 export async function GET(req: Request) {
   const session = getServerSession(authOptions);
