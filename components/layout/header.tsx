@@ -3,9 +3,11 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCart } from "../provider/cartItemsProvider";
 
 export function Header() {
   const { data: session, status } = useSession();
+  const cart = useCart();
 
   return (
     <header className="bg-white shadow-md">
@@ -35,17 +37,18 @@ export function Header() {
           ) : (
             <>
               {session.user?.name?.toLowerCase() == "admin" && (
-                <Link
-                  href="/admin"
-                  className="text-gray-600 hover:text-black"
-                >
+                <Link href="/admin" className="text-gray-600 hover:text-black">
                   Admin
                 </Link>
               )}
-              
+
               <Link href="/cart" className="text-gray-600 hover:text-black">
                 Cart
+                <span className="relative text-black text-xs -left-1 -top-3 rounded-2xl px-1 bg-yellow-500 font-bold">
+                  {cart && (cart.cartItems as any).items.length}
+                </span>
               </Link>
+
               <button
                 className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transistion duration-200"
                 onClick={() => signOut()}

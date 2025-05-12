@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { MouseEvent, useEffect, useState } from "react";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import Loading from "@/components/fragments/ui/Loading";
 import ErrorPage from "@/components/fragments/ui/Error";
@@ -8,11 +8,21 @@ import { useParams } from "next/navigation";
 import { StarRating } from "@/components/fragments/ui/StarRating";
 import AppLayout from "@/app/AppLayout";
 import { formatDate } from "@/functions/date";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const qc = new QueryClient();
-const ProductDetailPage = () => {
-  const params = useParams();
 
+const ProductDetailPage = () => {
+  const [userEmail, setUserEmail] = useState<string>();
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((d) => setUserEmail(d.user.email));
+  }, []);
+
+  const params = useParams();
   const { id } = params;
 
   // Fetch product details using TanStack Query
@@ -43,8 +53,37 @@ const ProductDetailPage = () => {
     return <ErrorPage />;
   }
 
+  function addToCartHandler(e: MouseEvent) {
+    e.preventDefault();
+    fetch("/api/cart/", {
+      method: "POST",
+      body: JSON.stringify({
+        userEmail,
+        productId: id,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          toast.error("Failed to add item to cart.");
+        } else {
+          toast.success(`${product.name} has been added to your cart!`);
+          // Delay redirection to allow the toast to display
+          setTimeout(() => {
+            window.location.href = "/cart"; // Redirect to the cart page
+          }, 2000); // 2-second delay
+        }
+      })
+      .catch(() => {
+        toast.error("An error occurred. Please try again.");
+      });
+  }
+
   return (
     <AppLayout>
+      <ToastContainer />
       <div className="max-w-6xl mx-auto py-12">
         <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           {/* Product Image Section */}
@@ -100,7 +139,10 @@ const ProductDetailPage = () => {
                 ? "In Stock. Order now!"
                 : "Currently unavailable."}
             </p>
-            <button className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4">
+            <button
+              onClick={addToCartHandler}
+              className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4"
+            >
               Add to Cart
             </button>
             <button className="cursor-pointer w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">

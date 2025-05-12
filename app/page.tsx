@@ -13,8 +13,9 @@ import Loading from "@/components/fragments/ui/Loading";
 import AppLayout from "./AppLayout";
 import ErrorPage from "@/components/fragments/ui/Error";
 
-const qc = new QueryClient();
 export default function Home() {
+const qc = new QueryClient();
+
   const {
     isPending,
     error,

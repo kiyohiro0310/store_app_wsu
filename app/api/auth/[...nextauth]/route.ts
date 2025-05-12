@@ -2,7 +2,7 @@ import { errorResponse } from "@/functions/res/error_response";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+export const authOptions = {
     providers: [
         CredentialsProvider({
           // The name to display on the sign in form (e.g. "Sign in with...")
@@ -31,7 +31,7 @@ const handler = NextAuth({
             const user = await res.json();
             // If no error and we have user data, return it
             if (res.ok && user) {
-              return user;
+              return {...user, id: user.id};
             }
             // If you return null then an error will be displayed advising the user to check their details.
             if (res.status === 401) {
@@ -50,6 +50,8 @@ const handler = NextAuth({
         signIn: "/login",
       },
       secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
