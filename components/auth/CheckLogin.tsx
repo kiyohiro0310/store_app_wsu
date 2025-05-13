@@ -25,5 +25,6 @@ export async function fetchUserSession(
     setIsAuthorized(false);
   } else {
     setIsAuthorized(true);
+    return data.user;
   }
 }

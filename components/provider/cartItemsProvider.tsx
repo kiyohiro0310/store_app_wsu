@@ -16,8 +16,9 @@ interface CartItem {
 
 interface CartContextType {
   cartItems: {
+    orderId: string;
     price: number;
-    items: Product[]
+    items: Product[];
   }
 }
 

@@ -7,6 +7,7 @@ import { fetchUserSession } from "@/components/auth/CheckLogin";
 import { useCart } from "@/components/provider/cartItemsProvider";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
+import Link from "next/link";
 
 const CartPage = () => {
   const { cartItems } = useCart();
@@ -104,9 +105,9 @@ const CartPage = () => {
                   ${cartItems.price.toFixed(2)}
                 </p>
               </div>
-              <button className="w-full bg-yellow-400 text-black py-3 rounded-lg font-semibold hover:bg-yellow-500 cursor-pointer transition">
-                Proceed to Checkout
-              </button>
+              <div className="w-full flex justify-end items-center ">
+                <Link href={"/checkout"} className="bg-yellow-400 text-black py-3 px-4 rounded-lg font-semibold hover:bg-yellow-500 cursor-pointer transition">Checkout</Link>
+              </div>
             </div>
           ): ""}
         </main>
