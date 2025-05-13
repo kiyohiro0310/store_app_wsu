@@ -6,18 +6,20 @@ import { addOrderItemToDB, getPendingCartItems } from "@/functions/order";
 import { OrderItem } from "@/types";
 import { getProductById } from "@/functions/products";
 import { authOptions } from "../auth/[...nextauth]/options";
+import { emailRegex } from "@/functions/regEx";
+import { deleteCartItem } from "@/functions/cart";
 
 export async function GET(req: Request) {
-  const session = getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
   if (!session)
     return errorResponse(403, "You are not authorised to this page.");
 
   try {
-    const data = await session;
-    if (!data || !data.user || !data.user.email)
+    const data = session;
+    if (!data || !data.user || !data.user.email) {
       return errorResponse(403, "You are not authroised to this page.");
-
-    const user = await getUserByEmail(data.user.email);
+  }
+    const user = await getUserByEmail(data.user.email)
 
     if(!user) return errorResponse(404, "No user found.");
 
@@ -32,16 +34,18 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const { userEmail, productId } = await req.json();
 
-  const session = getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return errorResponse(403, "You are not authorised to this page.");
   }
 
   try {
+    console.log(userEmail)
     // Validate userEmail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     if (!userEmail || !emailRegex.test(userEmail)) {
+      console.log("Invalid email");
       return errorResponse(400, "Invalid email address.");
     }
 
@@ -76,6 +80,45 @@ export async function POST(req: Request) {
 
     return dataResponse(200, result);
   } catch (error) {
+    return errorResponse(500, "Internal server error");
+  }
+}
+
+export async function DELETE(req: Request) {
+  const { orderItemId } = await req.json();
+
+  console.log(orderItemId)
+
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return errorResponse(403, "You are not authorised to this page.");
+  }
+
+  try {
+    if (!session.user) return errorResponse(403, "You are not authorised to this page.");
+    const userEmail = session.user.email;
+    // Validate userEmail
+    if (!userEmail || !emailRegex.test(userEmail)) {
+      return errorResponse(400, "Invalid email address.");
+    }
+
+    // Validate productId
+    if (!orderItemId || typeof orderItemId !== "string" || orderItemId.trim() === "") {
+      return errorResponse(400, "Invalid product ID.");
+    }
+
+    // Find user by email
+    const user = await getUserByEmail(userEmail);
+    if (!user) return errorResponse(404, "No user found.");
+
+    // Delete the order item
+    const result = await deleteCartItem(orderItemId, user.id);
+
+
+    return dataResponse(200, { message: "Item removed from cart successfully." });
+  } catch (error) {
+    console.error("Error in DELETE /api/cart:", error);
     return errorResponse(500, "Internal server error");
   }
 }

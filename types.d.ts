@@ -17,6 +17,7 @@ export type Filter = {
 };
 
 export type OrderItem = {
+  id?: string;
   orderId: string;
   pricePurchase: double;
   productId: string;

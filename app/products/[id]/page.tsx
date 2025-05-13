@@ -10,16 +10,31 @@ import AppLayout from "@/app/AppLayout";
 import { formatDate } from "@/functions/date";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getSession } from "next-auth/react";
+import CircleLoadingIndicator from "@/components/fragments/ui/CircleLoadingIndicator";
 
 const qc = new QueryClient();
 
 const ProductDetailPage = () => {
   const [userEmail, setUserEmail] = useState<string>();
+  const [addingCart, setAddingCart] = useState<boolean>(false);
 
   useEffect(() => {
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((d) => setUserEmail(d.user.email));
+    const fetchSession = async () => {
+      try {
+        const session = await getSession();
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+        } else {
+          toast.error("Failed to retrieve user email. Please log in.");
+        }
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        toast.error("An error occurred while fetching session data.");
+      }
+    };
+
+    fetchSession();
   }, []);
 
   const params = useParams();
@@ -36,7 +51,8 @@ const ProductDetailPage = () => {
       queryFn: async () => {
         const res = await fetch(`/api/products/details?id=${id}`);
         if (!res.ok) {
-          throw new Error("Failed to fetch product details");
+          toast.error("Failed to fetch product details");
+          return;
         }
         return res.json();
       },
@@ -53,8 +69,14 @@ const ProductDetailPage = () => {
     return <ErrorPage />;
   }
 
-  function addToCartHandler(e: MouseEvent) {
+  function addToCartHandler(e: MouseEvent, userEmail?: string) {
     e.preventDefault();
+
+    if (!userEmail) {
+      toast.error("Uesr email is not available.");
+      return;
+    }
+    setAddingCart(true);
     fetch("/api/cart/", {
       method: "POST",
       body: JSON.stringify({
@@ -69,6 +91,7 @@ const ProductDetailPage = () => {
         if (!res.ok) {
           toast.error("Failed to add item to cart.");
         } else {
+          setAddingCart(false);
           toast.success(`${product.name} has been added to your cart!`);
           // Delay redirection to allow the toast to display
           setTimeout(() => {
@@ -139,12 +162,22 @@ const ProductDetailPage = () => {
                 ? "In Stock. Order now!"
                 : "Currently unavailable."}
             </p>
-            <button
-              onClick={addToCartHandler}
-              className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4"
-            >
-              Add to Cart
-            </button>
+            {addingCart ? (
+              <button
+                className="cursor-pointer w-full px-4 py-2 bg-gray-500 text-white rounded-lg flex justify-center items-center mb-4"
+                disabled
+              >
+                <CircleLoadingIndicator/>
+              </button>
+            ) : (
+              <button
+                onClick={(e) => addToCartHandler(e, userEmail)}
+                className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4"
+              >
+                Add to Cart
+              </button>
+            )}
+
             <button className="cursor-pointer w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
               Buy Now
             </button>

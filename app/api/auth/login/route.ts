@@ -8,20 +8,20 @@ export async function POST(request: Request) {
   const prisma = new PrismaClient();
   const user = await prisma.user.findFirst({
     where: {
-      email: email,
+      email: email.toLowerCase(),
     },
+    
   });
 
   if (!user || user == null) {
-    errorResponse(401, "User not found");
-  } 
-  else {
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatch) {
-      return errorResponse(401, "Invalid password");
-    }
-
-    return dataResponse(200, user);
+    return errorResponse(401, "User not found");
   }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatch) {
+    return errorResponse(401, "Invalid password");
+  }
+
+  return dataResponse(200, user);
 }
