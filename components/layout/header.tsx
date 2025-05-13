@@ -27,7 +27,7 @@ export function Header() {
             Products
           </Link>
 
-          {!session || status != "authenticated" ? (
+          {!session || status !== "authenticated" ? (
             <button
               onClick={() => signIn()}
               className="cursor-pointer px-4 py-2 bg-yellow-400 text-black rounded-md hover:bg-yellow-500 font-bold transition duration-200"
@@ -36,7 +36,7 @@ export function Header() {
             </button>
           ) : (
             <>
-              {session.user?.name?.toLowerCase() == "admin" && (
+              {session.user?.name?.toLowerCase() === "admin" && (
                 <Link href="/admin" className="text-gray-600 hover:text-black">
                   Admin
                 </Link>
@@ -45,12 +45,12 @@ export function Header() {
               <Link href="/cart" className="text-gray-600 hover:text-black">
                 Cart
                 <span className="relative text-black text-xs -left-1 -top-3 rounded-2xl px-1 bg-yellow-500 font-bold">
-                  {cart && (cart.cartItems as any).items.length}
+                  {cart?.cartItems?.items?.length || 0}
                 </span>
               </Link>
 
               <button
-                className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transistion duration-200"
+                className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transition duration-200"
                 onClick={() => signOut()}
               >
                 Sign out

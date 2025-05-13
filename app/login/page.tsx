@@ -17,11 +17,11 @@ const LoginPage = () => {
       redirect: false,
     });
 
-    if (result?.error) {
-      toast.error("Login failed. Please check your credentials.");
-    } else {
+    if (!result)
+      return toast.error("Login failed. Please check your credentials.");
+
+    if (result.ok) {
       toast.success("Login successful!");
-      // Delay redirection to allow the toast to display
       setTimeout(() => {
         window.location.href = "/";
       }, 1000);

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import AppLayout from "../AppLayout";
 import { signIn } from "next-auth/react";
 import ErrorPage from "@/components/fragments/ui/Error";
+import { emailRegex, passwordRegex } from "@/functions/regEx";
 
 const RegisterPage = () => {
   const nameRef = React.useRef<HTMLInputElement>(null);
@@ -32,14 +33,11 @@ const RegisterPage = () => {
     }
 
     // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       newErrors.email = "Please enter a valid email address.";
     }
 
     // Validate password
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       newErrors.password =
         "Password must be at least 8 characters long, include an uppercase letter, a number, and a special character.";
