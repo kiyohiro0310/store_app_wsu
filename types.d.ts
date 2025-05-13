@@ -8,6 +8,7 @@ export type Product = {
   category: string;
   rating?: number;
   tags: string[];
+  orderId?: string;
 };
 
 export type Filter = {

@@ -80,6 +80,7 @@ export async function getPendingCartItems(userId: string) {
 
     const itemsWithProductName = orderItems.map((item) => ({
         id: item.id,
+        orderId: item.orderId,
         productId: item.productId,
         quantity: item.quantity,
         priceAtPurchase: item.priceAtPurchase,
@@ -92,4 +93,33 @@ export async function getPendingCartItems(userId: string) {
         price: order.total,
         items: itemsWithProductName
     }
+}
+
+export async function updateOrder(orderId: string) {
+    await prisma.orderItem.deleteMany({
+        where: {
+            orderId
+        }
+    });
+    
+    const order = await prisma.order.update({
+        where: {
+            id: orderId
+        },
+        data: {
+            status: "PAID"
+        }
+    });
+
+    return order;
+}
+
+export async function getOrderById(orderId: string) {
+    const order = await prisma.order.findUnique({
+        where: {
+            id: orderId
+        }
+    });
+
+    return order;
 }
