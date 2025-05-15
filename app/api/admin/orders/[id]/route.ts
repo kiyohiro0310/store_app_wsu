@@ -22,7 +22,7 @@ async function isAdmin() {
 }
 
 // GET single order with details
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Check admin authorization
   if (!(await isAdmin())) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -30,7 +30,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   try {
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         user: {
           select: {
@@ -83,7 +83,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PATCH to update order status
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Check admin authorization
   if (!(await isAdmin())) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -100,7 +100,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     
     // Check if order exists
     const existingOrder = await prisma.order.findUnique({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     if (!existingOrder) {
@@ -109,7 +109,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     // Update the order status
     const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data: { status }
     });
 
