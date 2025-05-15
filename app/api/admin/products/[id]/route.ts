@@ -22,7 +22,7 @@ async function isAdmin(req: Request) {
 }
 
 // GET single product
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Check admin authorization
   if (!(await isAdmin(req))) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -30,7 +30,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   try {
     const product = await prisma.product.findUnique({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     if (!product) {
@@ -88,7 +88,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 // DELETE product
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Check admin authorization
   if (!(await isAdmin(req))) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -97,7 +97,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   try {
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     if (!existingProduct) {
@@ -106,7 +106,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     // Check if the product is part of any orders
     const usedInOrders = await prisma.orderItem.findFirst({
-      where: { productId: params.id }
+      where: { productId: (await params).id }
     });
 
     if (usedInOrders) {
@@ -115,7 +115,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     // Delete the product
     await prisma.product.delete({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     return dataResponse(200, { message: "Product deleted successfully" });
