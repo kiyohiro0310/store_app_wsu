@@ -15,6 +15,10 @@ const OrderCompletePage = () => {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const { id } = useParams();
 
+  if (!id) {
+    return <ErrorPage />;
+  }
+
   const {
     isPending,
     isError,
@@ -79,7 +83,7 @@ const OrderCompletePage = () => {
             <div className="mt-6 flex justify-between items-center">
               <h3 className="text-xl font-semibold">Total</h3>
               <p className="text-xl font-semibold">
-                ${orderDetails.total.toFixed(2)}
+                ${orderDetails && orderDetails.total ? orderDetails.total.toFixed(2) : "0.00"}
               </p>
             </div>
           </div>

@@ -3,11 +3,12 @@
 import Loading from "@/components/fragments/ui/Loading";
 import AppLayout from "../AppLayout";
 import { useEffect, useState } from "react";
-import { fetchUserSession } from "@/components/auth/CheckLogin";
 import { useCart } from "@/components/provider/cartItemsProvider";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import { User } from "next-auth";
+import AuthStateWrapper from "@/components/auth/AuthStateWrapper";
+import { getSession } from "next-auth/react";
 
 interface CardDetails {
   cardNumber: string;
@@ -16,9 +17,8 @@ interface CardDetails {
   cardholderName: string;
 }
 
-const CheckoutPage = () => {
+const CheckoutContent = () => {
   const { cartItems } = useCart();
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cardDetails, setCardDetails] = useState<CardDetails>({
     cardNumber: "",
@@ -29,20 +29,16 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     async function fetchUser() {
-      const user = await fetchUserSession(setIsAuthorized);
-      setCardDetails({
-        cardNumber: "",
-        expiryDate: "",
-        cvv: "",
-        cardholderName: user?.name || "",
-      });
+      const session = await getSession();
+      if (session?.user?.name) {
+        setCardDetails((prev: any) => ({
+          ...prev,
+          cardholderName: session.user!.name,
+        }));
+      }
     }
     fetchUser();
   }, []);
-
-  if (isAuthorized === null || !isAuthorized) {
-    return <Loading />;
-  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -134,7 +130,7 @@ const CheckoutPage = () => {
   }
 
   return (
-    <AppLayout>
+    <>
       <ToastContainer />
       <div className="min-h-screen bg-gray-100 p-6">
         <header className="mb-8">
@@ -248,21 +244,32 @@ const CheckoutPage = () => {
                 <button
                   onClick={() => handleCheckout(cartItems.items[0].orderId!)}
                   disabled={isProcessing}
-                  className={`w-full ${
+                  className={`w-full py-3 px-4 bg-yellow-400 text-black font-semibold rounded-lg transition ${
                     isProcessing
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-yellow-400 hover:bg-yellow-500"
-                  } text-black py-3 rounded-lg font-semibold transition`}
+                      ? "opacity-75 cursor-not-allowed"
+                      : "hover:bg-yellow-500"
+                  }`}
                 >
-                  {isProcessing ? "Processing..." : "Confirm and Pay"}
+                  {isProcessing ? "Processing..." : "Complete Purchase"}
                 </button>
               </div>
             </>
-          ) : (
-            ""
-          )}
+          ) : null}
         </main>
       </div>
+    </>
+  );
+};
+
+const CheckoutPage = () => {
+  return (
+    <AppLayout>
+      <AuthStateWrapper 
+        requireAuth={true}
+        redirectTo="/api/auth/signin"
+      >
+        <CheckoutContent />
+      </AuthStateWrapper>
     </AppLayout>
   );
 };

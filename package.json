@@ -13,6 +13,7 @@
     "postinstall": "npx prisma generate"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@prisma/client": "^6.7.0",
     "@tanstack/react-query": "^5.75.5",
     "@tanstack/react-start": "^1.120.3",
