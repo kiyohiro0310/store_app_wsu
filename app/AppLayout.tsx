@@ -15,10 +15,9 @@ const qc = new QueryClient({
 const AppLayout = ({ children }: PropsWithChildren) => {
   return (
     <SessionProvider 
-      // Optimize session settings
-      session={undefined} 
       refetchInterval={5 * 60} // Refetch session every 5 minutes
-      refetchOnWindowFocus={false} // Don't refetch on window focus
+      refetchOnWindowFocus={true} // Refetch on window focus to ensure session is current
+      refetchWhenOffline={false} // Don't refetch when offline
     >
       <QueryClientProvider client={qc}>
         <Header />

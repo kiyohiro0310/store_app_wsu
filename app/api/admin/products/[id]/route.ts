@@ -22,7 +22,10 @@ async function isAdmin(req: Request) {
 }
 
 // GET single product
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   // Check admin authorization
   if (!(await isAdmin(req))) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -30,7 +33,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     const product = await prisma.product.findUnique({
-      where: { id: (await params).id }
+      where: { id: (await params).id },
     });
 
     if (!product) {
@@ -45,7 +48,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 // PUT/UPDATE product
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   // Check admin authorization
   if (!(await isAdmin(req))) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -53,10 +59,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     const productData = await req.json();
-    
+
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: (await params).id }
+      where: { id: (await params).id },
     });
 
     if (!existingProduct) {
@@ -76,8 +82,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         inStock: productData.inStock,
         tags: productData.tags,
         rating: productData.rating,
-        ...(productData.releaseDate && { releaseDate: new Date(productData.releaseDate) })
-      }
+        ...(productData.releaseDate && {
+          releaseDate: new Date(productData.releaseDate),
+        }),
+      },
     });
 
     return dataResponse(200, updatedProduct);
@@ -88,7 +96,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 // DELETE product
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   // Check admin authorization
   if (!(await isAdmin(req))) {
     return errorResponse(403, "Not authorized. Admin access required.");
@@ -97,7 +108,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: (await params).id }
+      where: { id: (await params).id },
     });
 
     if (!existingProduct) {
@@ -106,16 +117,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     // Check if the product is part of any orders
     const usedInOrders = await prisma.orderItem.findFirst({
-      where: { productId: (await params).id }
+      where: { productId: (await params).id },
     });
 
     if (usedInOrders) {
-      return errorResponse(400, "Cannot delete product that is part of existing orders");
+      return errorResponse(
+        400,
+        "Cannot delete product that is part of existing orders"
+      );
     }
 
     // Delete the product
     await prisma.product.delete({
-      where: { id: (await params).id }
+      where: { id: (await params).id },
     });
 
     return dataResponse(200, { message: "Product deleted successfully" });
@@ -123,4 +137,4 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     console.error("Error deleting product:", error);
     return errorResponse(500, "Failed to delete product");
   }
-} 
+}

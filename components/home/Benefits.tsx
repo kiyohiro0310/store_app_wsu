@@ -1,5 +1,7 @@
 import { useRef, useEffect } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function Benefits() {
     const benefitsRef = useRef(null);
@@ -11,15 +13,46 @@ export function Benefits() {
         
         if (!benefitItems.length) return;
         
+        // Create a single timeline for better performance
+        const tl = gsap.timeline({
+            paused: true,
+            scrollTrigger: {
+                trigger: "#benefits-section",
+                start: "top 80%",
+                end: "bottom 20%",
+                toggleActions: "play none none reset", // Reset when scrolled back up
+                once: false, // Allow animation to replay
+                markers: false // No markers in production
+            }
+        });
         
         // Batch set initial state
         gsap.set(benefitItems, { opacity: 0, y: 20 });
         
+        // Single animation with stagger for better performance
+        tl.to(benefitItems, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            stagger: {
+                amount: 0.4, // Total stagger time
+                from: "start"
+            },
+            ease: "power2.out",
+            clearProps: "opacity,transform" // Clear props after animation for better memory management
+        });
+        
         // Play timeline
+        tl.play();
+        
+        return () => {
+            // Clean up
+            tl.kill();
+        };
     }, { scope: benefitsRef });
 
     return (
-        <section ref={benefitsRef} className="bg-white py-12 benefits-section">
+        <section ref={benefitsRef} id="benefits-section" className="bg-white py-12 benefits-section">
             <div className="max-w-6xl mx-auto px-4 text-center">
                 <h3 className="text-2xl font-semibold mb-6">Why Shop With Us?</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

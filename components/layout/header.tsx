@@ -129,7 +129,6 @@ export function Header() {
                 className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transition duration-200"
                 onClick={() => {
                   localStorage.removeItem('authState');
-                  localStorage.removeItem('userName');
                   signOut();
                 }}
               >

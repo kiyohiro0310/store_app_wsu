@@ -119,7 +119,7 @@ const CheckoutContent = () => {
       const data = await res.json();
       toast.success("Payment successful! Redirecting to order confirmation...");
       setTimeout(() => {
-        window.location.href = `/checkout/${data.orderId}`;
+        window.location.href = `/checkout/${orderId}`;
       }, 2000);
     } catch (error) {
       console.error("Error during checkout:", error);

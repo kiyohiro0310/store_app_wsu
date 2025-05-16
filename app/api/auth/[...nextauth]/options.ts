@@ -4,23 +4,6 @@ import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 import { NextAuthOptions } from "next-auth";
 
-// Define types for our callbacks
-type TokenUser = {
-  id: string;
-  email: string;
-  name: string;
-};
-
-// Extend JWT type to include our custom user property
-interface ExtendedToken extends JWT {
-  user?: TokenUser;
-}
-
-// Extend Session type to include our custom user property
-interface ExtendedSession extends Session {
-  user?: TokenUser;
-}
-
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
@@ -37,7 +20,6 @@ export const authOptions: NextAuthOptions = {
           async authorize(credentials, req) {
             // Add logic here to look up the user from the credentials supplied
             const baseUrl = process.env.NEXTAUTH_URL ? process.env.NEXTAUTH_URL : "http://localhost:3000";
-            
             try {
               const res = await fetch(`${baseUrl}/api/auth/login`, {
                 method: 'POST',
@@ -55,7 +37,8 @@ export const authOptions: NextAuthOptions = {
               }
               // If you return null then an error will be displayed advising the user to check their details.
               if (res.status === 401) {
-                return errorResponse(401, "Invalid username or password");
+                console.log("Invalid username or password");
+                return null; // Return null instead of error response
               }
               // Redirect them to an error page
               if (res.status === 500) {
@@ -80,22 +63,7 @@ export const authOptions: NextAuthOptions = {
       jwt: {
         maxAge: 30 * 24 * 60 * 60, // 30 days
       },
-      // Enhance callbacks for better persistence
-      callbacks: {
-        async jwt({ token, user }: { token: ExtendedToken, user: any }) {
-          // Add user info to the token when first signing in
-          if (user) {
-            token.user = {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-            };
-          }
-          return token;
-        },
-        
-      },
-      // Enable debug in development
+
       debug: process.env.NODE_ENV === "development",
       secret: process.env.NEXTAUTH_SECRET,
 };
