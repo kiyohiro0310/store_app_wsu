@@ -16,8 +16,11 @@ import CircleLoadingIndicator from "@/components/fragments/ui/CircleLoadingIndic
 const qc = new QueryClient();
 
 const ProductDetailPage = () => {
-  const [userEmail, setUserEmail] = useState<string>();
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [addingCart, setAddingCart] = useState<boolean>(false);
+  const params = useParams();
+  const id = params?.id as string;
+
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -25,8 +28,6 @@ const ProductDetailPage = () => {
         const session = await getSession();
         if (session?.user?.email) {
           setUserEmail(session.user.email);
-        } else {
-          toast.error("Failed to retrieve user email. Please log in.");
         }
       } catch (error) {
         console.error("Error fetching session:", error);
@@ -37,29 +38,29 @@ const ProductDetailPage = () => {
     fetchSession();
   }, []);
 
-  const params = useParams();
-  const { id } = params;
-
   // Fetch product details using TanStack Query
   const {
     data: product,
     isLoading,
     error,
-  } = useQuery(
-    {
-      queryKey: ["product", id],
-      queryFn: async () => {
+  } = useQuery({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      try {
         const res = await fetch(`/api/products/details?id=${id}`);
         if (!res.ok) {
-          toast.error("Failed to fetch product details");
-          return;
+          throw new Error(`Failed to fetch product: ${res.status}`);
         }
         return res.json();
-      },
-      enabled: !!id, // Only fetch if `id` is available
+      } catch (error) {
+        console.error("Product fetch error:", error);
+        toast.error("Failed to fetch product details");
+        throw error;
+      }
     },
-    qc
-  );
+    enabled: Boolean(id), // Only fetch if `id` is available
+    retry: 1,
+  }, qc);
 
   if (isLoading) {
     return <Loading />;
@@ -69,39 +70,44 @@ const ProductDetailPage = () => {
     return <ErrorPage />;
   }
 
-  function addToCartHandler(e: MouseEvent, userEmail?: string) {
+  async function addToCartHandler(e: MouseEvent, userEmail?: string) {
     e.preventDefault();
 
     if (!userEmail) {
-      toast.error("Uesr email is not available.");
+      toast.error("Please sign in to add items to your cart");
       return;
     }
+    
     setAddingCart(true);
-    fetch("/api/cart/", {
-      method: "POST",
-      body: JSON.stringify({
-        userEmail,
-        productId: id,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          toast.error("Failed to add item to cart.");
-        } else {
-          setAddingCart(false);
-          toast.success(`${product.name} has been added to your cart!`);
-          // Delay redirection to allow the toast to display
-          setTimeout(() => {
-            window.location.href = "/cart"; // Redirect to the cart page
-          }, 2000); // 2-second delay
-        }
-      })
-      .catch(() => {
-        toast.error("An error occurred. Please try again.");
+    
+    try {
+      const res = await fetch("/api/cart/", {
+        method: "POST",
+        body: JSON.stringify({
+          userEmail,
+          productId: id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+      
+      if (!res.ok) {
+        throw new Error("Failed to add item to cart");
+      }
+      
+      toast.success(`${product.name} has been added to your cart!`);
+      
+      // Delay redirection to allow the toast to display
+      setTimeout(() => {
+        window.location.href = "/cart"; // Redirect to the cart page
+      }, 2000); // 2-second delay
+    } catch (error) {
+      console.error("Cart error:", error);
+      toast.error("An error occurred while adding to cart. Please try again.");
+    } finally {
+      setAddingCart(false);
+    }
   }
 
   return (
@@ -114,7 +120,10 @@ const ProductDetailPage = () => {
             <img
               src={product.imageUrl}
               alt={product.name}
+              loading="eager" // Load product image eagerly
               className="w-full h-auto object-cover rounded-lg"
+              width="400"
+              height="400"
             />
           </div>
 
@@ -122,17 +131,17 @@ const ProductDetailPage = () => {
           <div className="w-full md:w-1/2">
             <h1 className="text-2xl font-bold text-gray-800">{product.name}</h1>
             <div className="pb-4">
-              <StarRating rating={product.rating} />
-              <div>{formatDate(product.releaseDate)}</div>
+              <StarRating rating={product.rating || 0} />
+              <div>{product.releaseDate ? formatDate(product.releaseDate) : "No release date"}</div>
             </div>
 
             <p className="text-lg font-semibold text-gray-800 mb-4">
               Category:{" "}
-              <span className="text-gray-600">{product.category}</span>
+              <span className="text-gray-600">{product.category || "Uncategorized"}</span>
             </p>
 
             <p className="text-lg font-semibold text-gray-800 mb-4">
-              Price: <span className="text-green-600">${product.price}</span>
+              Price: <span className="text-green-600">${product.price?.toFixed(2) || "0.00"}</span>
             </p>
             <p className="text-lg font-semibold text-gray-800 mb-4">
               In Stock:{" "}
@@ -146,41 +155,40 @@ const ProductDetailPage = () => {
             </p>
             <p className="text-lg font-semibold text-gray-800 mb-4">
               Tags:{" "}
-              <span className="text-gray-600">{product.tags.join(", ")}</span>
+              <span className="text-gray-600">{product.tags?.join(", ") || "None"}</span>
             </p>
 
-            <p className="text-gray-600 mb-4">{product.description}</p>
+            <p className="text-gray-600 mb-4">{product.description || "No description available"}</p>
           </div>
 
           {/* Purchase Section */}
           <div className="w-full md:w-1/3">
             <p className="text-lg font-semibold text-gray-800 mb-4">
-              Price: <span className="text-green-600">${product.price}</span>
+              Price: <span className="text-green-600">${product.price?.toFixed(2) || "0.00"}</span>
             </p>
             <p className="text-sm text-gray-600 mb-4">
               {product.inStock
                 ? "In Stock. Order now!"
                 : "Currently unavailable."}
             </p>
-            {addingCart ? (
-              <button
-                className="cursor-pointer w-full px-4 py-2 bg-gray-500 text-white rounded-lg flex justify-center items-center mb-4"
-                disabled
-              >
-                <CircleLoadingIndicator/>
-              </button>
-            ) : (
-              <button
-                onClick={(e) => addToCartHandler(e, userEmail)}
-                className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4"
-              >
-                Add to Cart
-              </button>
-            )}
-
-            <button className="cursor-pointer w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
-              Buy Now
-            </button>
+            <div className="purchase-buttons">
+              {addingCart ? (
+                <button
+                  className="cursor-pointer w-full px-4 py-2 bg-gray-500 text-white rounded-lg flex justify-center items-center mb-4"
+                  disabled
+                >
+                  <CircleLoadingIndicator/>
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => addToCartHandler(e, userEmail)}
+                  className="cursor-pointer w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition mb-4"
+                  disabled={!product.inStock}
+                >
+                  {userEmail ? "Add to Cart" : "Sign in to Purchase"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
