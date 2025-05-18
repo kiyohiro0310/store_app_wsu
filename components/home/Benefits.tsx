@@ -17,7 +17,7 @@ export function Benefits() {
         const tl = gsap.timeline({
             paused: true,
             scrollTrigger: {
-                trigger: "#benefits-section",
+                trigger: benefitsRef.current,
                 start: "top 80%",
                 end: "bottom 20%",
                 toggleActions: "play none none reset", // Reset when scrolled back up
@@ -52,7 +52,7 @@ export function Benefits() {
     }, { scope: benefitsRef });
 
     return (
-        <section ref={benefitsRef} id="benefits-section" className="bg-white py-12 benefits-section">
+        <section ref={benefitsRef} className="bg-white py-12">
             <div className="max-w-6xl mx-auto px-4 text-center">
                 <h3 className="text-2xl font-semibold mb-6">Why Shop With Us?</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

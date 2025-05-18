@@ -16,6 +16,9 @@ const RegisterPage = () => {
     password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   function validateInputs() {
     const username = nameRef.current?.value || "";
     const email = emailRef.current?.value || "";
@@ -51,8 +54,11 @@ const RegisterPage = () => {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     if (!validateInputs()) {
+      setIsLoading(false);
       return;
     }
 
@@ -70,30 +76,24 @@ const RegisterPage = () => {
       body: JSON.stringify(data),
     })
       .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Network response was not ok");
+        if (!response.ok) {
+          throw new Error("Registration failed");
         }
+        return response.json();
       })
-      .then((data) => {
+      .catch((error) => {
+        console.error("Error:", error);
+        setError("An error occurred during registration. Please try again.");
+      })
+      .finally(() => {
         // Use signIn to log in the user
         signIn("credentials", {
           email: data.email,
           password: data.password,
-          redirect: false, // Prevent automatic redirection
-        }).then((result) => {
-          if (result?.ok) {
-            // Redirect to the dashboard or home page
-            window.location.href = "/";
-          } else {
-            return <ErrorPage />;
-          }
+          redirect: true,
+          callbackUrl: "/",
         });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        <ErrorPage />;
+        setIsLoading(false);
       });
   }
 
@@ -176,10 +176,16 @@ const RegisterPage = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-yellow-400 text-black py-2 rounded-lg font-semibold hover:bg-yellow-500 transition"
+              disabled={isLoading}
+              className={`w-full bg-yellow-400 text-black py-2 rounded-lg font-semibold hover:bg-yellow-500 transition ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Register
+              {isLoading ? "Registering..." : "Register"}
             </button>
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            )}
           </form>
           <p className="text-center text-gray-600 mt-4">
             Already have an account?{" "}

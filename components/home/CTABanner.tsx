@@ -12,7 +12,7 @@ gsap.registerPlugin(useGSAP);
     const tl = gsap.timeline({
       paused: true, // Start paused for better performance
       scrollTrigger: {
-        trigger: ".cta-banner",
+        trigger: bannerRef.current,
         start: "top 85%",
         end: "bottom 15%",
         toggleActions: "play none none reset", // Reset when scrolling back up
@@ -32,7 +32,7 @@ gsap.registerPlugin(useGSAP);
     gsap.set(elements, { opacity: 0, y: 20 });
     
     // Add animations to timeline with proper staggering
-    tl.to(".cta-banner", {
+    tl.to(bannerRef.current, {
       opacity: 1,
       y: 0,
       duration: 0.5,
@@ -78,17 +78,15 @@ gsap.registerPlugin(useGSAP);
 
   return (
     <div className="cta-banner">
-
-    <section ref={bannerRef} className="bg-black text-white py-12 text-center will-change-transform">
-      <h3 className="text-3xl font-bold mb-4 cta-title will-change-transform">Ready to Upgrade Your Tech?</h3>
-      <p className="mb-6 cta-desc will-change-transform">
-        Explore our best-selling gadgets and enjoy free shipping today.
-      </p>
-      <button className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded text-lg font-medium cta-button will-change-transform">
-        Browse Products
-      </button>
-    </section>
+      <section ref={bannerRef} className="bg-black text-white py-12 text-center will-change-transform">
+        <h3 className="text-3xl font-bold mb-4 cta-title will-change-transform">Ready to Upgrade Your Tech?</h3>
+        <p className="mb-6 cta-desc will-change-transform">
+          Explore our best-selling gadgets and enjoy free shipping today.
+        </p>
+        <button className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded text-lg font-medium cta-button will-change-transform">
+          Browse Products
+        </button>
+      </section>
     </div>
-
   );
 }
