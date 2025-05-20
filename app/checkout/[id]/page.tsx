@@ -43,6 +43,8 @@ const OrderCompletePage = () => {
     return <Loading />;
   }
 
+  console.log('Order Details:', orderDetails); // Debug log
+
   return (
     <AppLayout>
       <div className="min-h-screen bg-gray-100 p-6">
@@ -78,6 +80,37 @@ const OrderCompletePage = () => {
             <div className="mb-4">
               <p className="text-gray-600">Order ID: {orderDetails.id}</p>
               <p className="text-gray-600">Status: {orderDetails.status}</p>
+            </div>
+
+            {/* Order Items List */}
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Items</h3>
+              <div className="space-y-4">
+                {orderDetails.items && orderDetails.items.length > 0 ? (
+                  orderDetails.items.map((item: any) => (
+                    <div key={item.id} className="flex items-center justify-between border-b pb-4">
+                      <div className="flex items-center space-x-4">
+                        {item.productImage && (
+                          <img
+                            src={item.productImage}
+                            alt={item.productName}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium">{item.productName}</p>
+                          <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                        </div>
+                      </div>
+                      <p className="font-medium">
+                        ${(item.priceAtPurchase * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600">No items found in this order.</p>
+                )}
+              </div>
             </div>
 
             <div className="mt-6 flex justify-between items-center">

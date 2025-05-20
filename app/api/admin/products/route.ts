@@ -69,6 +69,7 @@ export async function POST(req: Request) {
         category: productData.category,
         imageUrl: productData.imageUrl,
         inStock: productData.inStock,
+        quantity: productData.quantity,
         tags: productData.tags,
         rating: productData.rating,
         releaseDate: new Date(productData.releaseDate),

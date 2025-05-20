@@ -28,6 +28,7 @@ model Product {
   imageUrl    String
   releaseDate DateTime
   inStock     Boolean
+  quantity    Int         @default(0)
   tags        String[]
   rating      Float?
   ownerId     String

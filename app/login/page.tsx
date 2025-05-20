@@ -20,12 +20,13 @@ const LoginPage = () => {
     if (!result)
       return toast.error("Login failed. Please check your credentials.");
 
-    if (result.ok) {
-      toast.success("Login successful!");
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+    if (!result.ok) {
+      return toast.error("Login failed. Please check your credentials.");
     }
+    toast.success("Login successful!");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 500);
   };
 
   return (

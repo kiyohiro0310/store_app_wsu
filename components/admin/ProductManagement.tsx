@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
+import DataTable from "datatables.net-dt";
 
 // Types for our product
 interface Product {
@@ -14,6 +15,7 @@ interface Product {
   category: string;
   imageUrl: string;
   inStock: boolean;
+  quantity: number;
   tags: string[];
   rating?: number;
   releaseDate: Date;
@@ -28,10 +30,14 @@ interface ProductForm {
   category: string;
   imageUrl: string;
   inStock: boolean;
+  quantity: string;
   tags: string;
 }
 
 const ProductManagement = () => {
+  const tableRef = useRef<HTMLTableElement>(null);
+  const dataTableRef = useRef<any>(null);
+
   // State for modal and form
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -44,6 +50,7 @@ const ProductManagement = () => {
     category: "",
     imageUrl: "",
     inStock: true,
+    quantity: "0",
     tags: "",
   });
   
@@ -149,6 +156,7 @@ const ProductManagement = () => {
       category: "",
       imageUrl: "",
       inStock: true,
+      quantity: "0",
       tags: "",
     });
     setIsModalOpen(true);
@@ -166,6 +174,7 @@ const ProductManagement = () => {
       category: product.category,
       imageUrl: product.imageUrl,
       inStock: product.inStock,
+      quantity: product.quantity.toString(),
       tags: product.tags.join(", "),
     });
     setIsModalOpen(true);
@@ -194,6 +203,7 @@ const ProductManagement = () => {
       category: formData.category,
       imageUrl: formData.imageUrl,
       inStock: formData.inStock,
+      quantity: parseInt(formData.quantity),
       tags: formData.tags.split(",").map(tag => tag.trim()),
       releaseDate: new Date().toISOString(),
     };
@@ -216,6 +226,7 @@ const ProductManagement = () => {
       category: "",
       imageUrl: "",
       inStock: true,
+      quantity: "0",
       tags: "",
     });
   };
@@ -227,6 +238,90 @@ const ProductManagement = () => {
     }
   };
 
+  // Initialize DataTable with proper configuration
+  useEffect(() => {
+    if (products && tableRef.current && !dataTableRef.current) {
+      dataTableRef.current = new DataTable(tableRef.current, {
+        // Basic configuration
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'asc']],
+        
+        // Column definitions
+        columnDefs: [
+          {
+            targets: -1,
+            orderable: false,
+            searchable: false,
+            className: 'text-center'
+          }
+        ],
+
+        // Layout configuration
+        dom: '<"flex justify-between items-center mb-4"<"flex items-center"l><"flex items-center"f>>rtip',
+
+        // Language configuration
+        language: {
+          search: "",
+          searchPlaceholder: "Search products...",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ products",
+          infoEmpty: "No products available",
+          infoFiltered: "(filtered from _MAX_ total products)",
+          paginate: {
+            first: "«",
+            previous: "‹",
+            next: "›",
+            last: "»"
+          }
+        }
+      });
+    }
+
+    return () => {
+      if (dataTableRef.current) {
+        dataTableRef.current.destroy();
+        dataTableRef.current = null;
+      }
+    };
+  }, [products]);
+
+  // Update DataTable when products change
+  useEffect(() => {
+    if (dataTableRef.current && products && tableRef.current) {
+      dataTableRef.current.destroy();
+      dataTableRef.current = new DataTable(tableRef.current, {
+        // Same configuration as above
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'asc']],
+        columnDefs: [
+          {
+            targets: -1,
+            orderable: false,
+            searchable: false,
+            className: 'text-center'
+          }
+        ],
+        dom: '<"flex justify-between items-center mb-4"<"flex items-center"l><"flex items-center"f>>rtip',
+        language: {
+          search: "",
+          searchPlaceholder: "Search products...",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ products",
+          infoEmpty: "No products available",
+          infoFiltered: "(filtered from _MAX_ total products)",
+          paginate: {
+            first: "«",
+            previous: "‹",
+            next: "›",
+            last: "»"
+          }
+        }
+      });
+    }
+  }, [products]);
+
   if (isLoading) {
     return <div className="text-center py-10">Loading products...</div>;
   }
@@ -236,50 +331,59 @@ const ProductManagement = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-gray-50 min-h-screen">
       <ToastContainer position="top-right" autoClose={3000} />
       
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Product Management</h1>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+          <p className="text-gray-600 mt-1">Manage your product inventory</p>
+        </div>
         <button 
           onClick={handleAddProduct}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2 shadow-sm"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
           Add New Product
         </button>
       </div>
 
       {/* Products Table */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table ref={tableRef} className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Product
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Details
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Quantity
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {products?.map((product: Product) => (
-              <tr key={product.id}>
+              <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-150">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 relative">
+                    <div className="flex-shrink-0 h-12 w-12 relative rounded-lg overflow-hidden border border-gray-200">
                       <Image 
                         src={product.imageUrl} 
                         alt={product.name}
                         layout="fill"
                         objectFit="cover"
-                        className="rounded-md"
+                        className="rounded-lg"
                       />
                     </div>
                     <div className="ml-4">
@@ -293,29 +397,48 @@ const ProductManagement = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">${product.price.toFixed(2)} {product.currency}</div>
+                  <div className="text-sm font-medium text-gray-900">${product.price.toFixed(2)} {product.currency}</div>
                   <div className="text-sm text-gray-500 truncate max-w-xs">
                     {product.description}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    product.inStock 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
                     {product.inStock ? 'In Stock' : 'Out of Stock'}
                   </span>
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    product.quantity > 0 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.quantity} in stock
+                  </span>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button 
-                    onClick={() => handleEditProduct(product)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => handleEditProduct(product)}
+                      className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -432,6 +555,21 @@ const ProductManagement = () => {
                     value={formData.tags}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    min="0"
+                    required
                   />
                 </div>
                 

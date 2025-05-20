@@ -80,6 +80,7 @@ export async function PUT(
         category: productData.category,
         imageUrl: productData.imageUrl,
         inStock: productData.inStock,
+        quantity: productData.quantity,
         tags: productData.tags,
         rating: productData.rating,
         ...(productData.releaseDate && {

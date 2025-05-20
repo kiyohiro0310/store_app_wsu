@@ -8,6 +8,9 @@ import { getProductById } from "@/functions/products";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { emailRegex } from "@/functions/regEx";
 import { deleteCartItem } from "@/functions/cart";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -32,7 +35,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { userEmail, productId } = await req.json();
+  const { userEmail, productId, quantity } = await req.json();
 
   const session = await getServerSession(authOptions);
 
@@ -41,45 +44,79 @@ export async function POST(req: Request) {
   }
 
   try {
-    console.log(userEmail)
     // Validate userEmail
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     if (!userEmail || !emailRegex.test(userEmail)) {
-      console.log("Invalid email");
       return errorResponse(400, "Invalid email address.");
     }
 
     // Validate productId
-    if (
-      !productId ||
-      typeof productId !== "string" ||
-      productId.trim() === ""
-    ) {
+    if (!productId || typeof productId !== "string" || productId.trim() === "") {
       return errorResponse(400, "Invalid product ID.");
     }
 
-    // TODO 1: Find user by user email
+    // Validate quantity
+    if (!quantity || typeof quantity !== "number" || quantity < 1) {
+      return errorResponse(400, "Invalid quantity.");
+    }
+
+    // Find user by user email
     const user = await getUserByEmail(userEmail);
     if (!user || user == null) return errorResponse(404, "No user found.");
 
-    // TODO 2: Find product
+    // Find product
     const product = await getProductById(productId);
-    if (!product || product == null)
+    if (!product || product == null) {
       return errorResponse(404, "No product found");
+    }
 
-    // TODO 2: Add order item using userId, price, prouctId and quantity
+    // Check if product is in stock
+    if (!product.inStock) {
+      return errorResponse(400, "Product is out of stock.");
+    }
+
+    // Check if requested quantity is available
+    if (product.quantity < quantity) {
+      return errorResponse(400, `Only ${product.quantity} items available in stock.`);
+    }
+
+    // Check if user already has this product in cart
+    const currentOrder = await prisma.order.findFirst({
+      where: {
+        status: "PENDING",
+        userId: user.id
+      },
+      include: {
+        items: {
+          where: {
+            productId: productId
+          }
+        }
+      }
+    });
+
+    // If product exists in cart, check if adding more would exceed stock
+    if (currentOrder?.items[0]) {
+      const currentQuantity = currentOrder.items[0].quantity;
+      if (currentQuantity + quantity > product.quantity) {
+        return errorResponse(400, `Cannot add ${quantity} more items. Only ${product.quantity - currentQuantity} items available.`);
+      }
+    }
+
+    // Add order item using userId, price, productId and quantity
     const orderItem: OrderItem = {
       orderId: "",
       pricePurchase: product.price,
       productId: product.id,
-      quantity: 1,
+      quantity: quantity,
     };
 
     const result = await addOrderItemToDB(orderItem, user.id, productId);
-    if (!result) return errorResponse(400, "Error occured");
+    if (!result) return errorResponse(400, "Error occurred while adding to cart");
 
     return dataResponse(200, result);
   } catch (error) {
+    console.error("Error adding to cart:", error);
     return errorResponse(500, "Internal server error");
   }
 }
