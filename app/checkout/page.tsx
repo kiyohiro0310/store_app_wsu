@@ -7,7 +7,6 @@ import { useCart } from "@/components/provider/cartItemsProvider";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import { User } from "next-auth";
-import AuthStateWrapper from "@/components/auth/AuthStateWrapper";
 import { getSession } from "next-auth/react";
 
 interface CardDetails {
@@ -46,7 +45,10 @@ const CheckoutContent = () => {
 
     // Format card number with spaces every 4 digits
     if (name === "cardNumber") {
-      formattedValue = value.replace(/\s/g, "").replace(/(\d{4})/g, "$1 ").trim();
+      formattedValue = value
+        .replace(/\s/g, "")
+        .replace(/(\d{4})/g, "$1 ")
+        .trim();
       if (formattedValue.length > 19) return; // 16 digits + 3 spaces
     }
 
@@ -61,7 +63,7 @@ const CheckoutContent = () => {
     // Limit CVV to 3-4 digits
     if (name === "cvv" && value.length > 4) return;
 
-    setCardDetails(prev => ({
+    setCardDetails((prev) => ({
       ...prev,
       [name]: formattedValue,
     }));
@@ -69,7 +71,7 @@ const CheckoutContent = () => {
 
   const validateCardDetails = () => {
     const { cardNumber, expiryDate, cvv, cardholderName } = cardDetails;
-    
+
     if (!cardholderName.trim()) {
       toast.error("Please enter the cardholder name");
       return false;
@@ -93,7 +95,6 @@ const CheckoutContent = () => {
     return true;
   };
 
-
   async function handleCheckout(orderId: string) {
     if (!validateCardDetails()) return;
 
@@ -107,7 +108,7 @@ const CheckoutContent = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          orderId
+          orderId,
         }),
       });
 
@@ -176,7 +177,9 @@ const CheckoutContent = () => {
           {cartItems?.items?.length || 0 ? (
             <>
               <div className="border-t border-gray-200 pt-6 mb-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Payment Details</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                  Payment Details
+                </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -264,12 +267,7 @@ const CheckoutContent = () => {
 const CheckoutPage = () => {
   return (
     <AppLayout>
-      <AuthStateWrapper 
-        requireAuth={true}
-        redirectTo="/api/auth/signin"
-      >
-        <CheckoutContent />
-      </AuthStateWrapper>
+      <CheckoutContent />
     </AppLayout>
   );
 };

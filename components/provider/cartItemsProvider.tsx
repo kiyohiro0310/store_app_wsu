@@ -4,7 +4,7 @@ import { QueryClient, useQuery } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import ErrorPage from "../fragments/ui/Error";
 import Loading from "../fragments/ui/Loading";
-import { Product } from "@/types";
+import { OrderItem } from "@/types";
 
 interface CartItem {
   id: string;
@@ -18,7 +18,7 @@ interface CartContextType {
   cartItems: {
     orderId: string;
     price: number;
-    items: Product[];
+    items: OrderItem[];
   }
 }
 
