@@ -81,7 +81,7 @@ export function Header() {
   }
 
   // Determine authentication state based on session status and localStorage
-  const isAuthenticated = status === 'authenticated' || localStorage.getItem('authState') === 'authenticated';
+  const isAuthenticated = status === 'authenticated';
 
   return (
     <header className="bg-white shadow-md">
@@ -128,7 +128,6 @@ export function Header() {
               <button
                 className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transition duration-200"
                 onClick={() => {
-                  localStorage.removeItem('authState');
                   signOut();
                 }}
               >

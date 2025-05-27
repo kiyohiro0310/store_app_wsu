@@ -1,0 +1,135 @@
+.container {
+  width: 500px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: rgb(236, 232, 232);
+  border-radius: 6px;
+  padding: 50px 15px;
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 400px;
+  border: 1px dashed #211e1e;
+  height: 100px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.upload-container {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px 14px;
+  width: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+.loader-placeholder {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.success-checkmark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-checkmark::before {
+  content: "✔";
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+}
+
+.success-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ccc;
+  border-top: 3px solid #666;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.file-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.remove-btn {
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #f00;
+}
+
+.upload-btn {
+  background-color: #333;
+  height: 30px;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.upload-btn:hover {
+  background-color: #555;
+  outline: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 

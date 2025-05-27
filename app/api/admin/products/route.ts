@@ -48,6 +48,7 @@ export async function POST(req: Request) {
 
   try {
     const productData = await req.json();
+    console.log("Received product data:", productData);
     
     // Get admin user for product ownership
     const session = await getServerSession(authOptions);
@@ -82,4 +83,4 @@ export async function POST(req: Request) {
     console.error("Error creating product:", error);
     return errorResponse(500, "Failed to create product");
   }
-} 
+}

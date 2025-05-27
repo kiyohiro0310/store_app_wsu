@@ -106,7 +106,7 @@ export async function POST(req: Request) {
     // Add order item using userId, price, productId and quantity
     const orderItem: OrderItem = {
       orderId: "",
-      pricePurchase: product.price,
+      priceAtPurchase: product.price,
       productId: product.id,
       quantity: quantity,
     };
@@ -123,8 +123,6 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   const { orderItemId } = await req.json();
-
-  console.log(orderItemId)
 
   const session = await getServerSession(authOptions);
 
