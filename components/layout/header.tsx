@@ -13,41 +13,40 @@ export function Header() {
   const [isClient, setIsClient] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Use localStorage to maintain session state across page reloads
   useEffect(() => {
     // Mark that we're on the client side
     setIsClient(true);
-    
+
     // Pre-load auth state from localStorage for instant UI feedback
-    const storedAuthState = localStorage.getItem('authState');
-    const storedUserName = localStorage.getItem('userName');
-    
-    if (storedAuthState === 'authenticated') {
+    const storedAuthState = localStorage.getItem("authState");
+    const storedUserName = localStorage.getItem("userName");
+
+    if (storedAuthState === "authenticated") {
       // Already set initial UI state based on localStorage before session loads
-      if (storedUserName === 'admin') {
+      if (storedUserName === "admin") {
         setIsAdmin(true);
       }
       setIsLoading(false);
     }
-    
+
     // Monitor session changes from NextAuth
-    if (status === 'authenticated' && session) {
-      localStorage.setItem('authState', 'authenticated');
-      
+    if (status === "authenticated" && session) {
+      localStorage.setItem("authState", "authenticated");
+
       if (session.user?.name) {
-        localStorage.setItem('userName', session.user.name.toLowerCase());
+        localStorage.setItem("userName", session.user.name.toLowerCase());
         setIsAdmin(session.user.name.toLowerCase() === "admin");
       }
       setIsLoading(false);
-    } 
-    else if (status === 'unauthenticated') {
-      localStorage.removeItem('authState');
-      localStorage.removeItem('userName');
+    } else if (status === "unauthenticated") {
+      localStorage.removeItem("authState");
+      localStorage.removeItem("userName");
       setIsLoading(false);
     }
     // When session is loading but not yet determined, keep existing state
-    else if (status === 'loading' && !storedAuthState) {
+    else if (status === "loading" && !storedAuthState) {
       setIsLoading(true);
     }
   }, [status, session]);
@@ -81,7 +80,7 @@ export function Header() {
   }
 
   // Determine authentication state based on session status and localStorage
-  const isAuthenticated = status === 'authenticated';
+  const isAuthenticated = status === "authenticated";
 
   return (
     <header className="bg-white shadow-md">
@@ -112,7 +111,7 @@ export function Header() {
             </button>
           ) : (
             <>
-              {(isAdmin || (session?.user?.name?.toLowerCase() === "admin")) && (
+              {(isAdmin || session?.user?.name?.toLowerCase() === "admin") && (
                 <Link href="/admin" className="text-gray-600 hover:text-black">
                   Admin
                 </Link>
@@ -120,9 +119,11 @@ export function Header() {
 
               <Link href="/cart" className="text-gray-600 hover:text-black">
                 Cart
-                <span className="relative text-black text-xs -left-1 -top-3 rounded-2xl px-1 bg-yellow-500 font-bold">
-                  {cart?.cartItems?.items?.length || 0}
-                </span>
+                {cart?.cartItems?.items?.length && (
+                  <span className="relative text-black text-xs -left-1 -top-3 rounded-2xl px-1 bg-yellow-500 font-bold">
+                    {cart.cartItems.items.length}
+                  </span>
+                )}
               </Link>
 
               <button
