@@ -43,7 +43,7 @@ const qc = new QueryClient();
   return (
     <AppLayout>
       <Hero />
-      <Products items={products as Product[]} />
+      <Products items={(products as Product[]).slice(0,4)} />
       <Benefits />
       <Newsletter />
       <CTABanner />
