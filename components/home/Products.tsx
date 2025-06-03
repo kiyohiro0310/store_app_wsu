@@ -71,6 +71,7 @@ const Products = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 products-grid">
         {items.map((product) => (
           <Link
+          data-testid="product"
             href={`/products/${product.id}`}
             key={product.id}
             className="bg-white shadow-md rounded-2xl overflow-hidden transition-transform product-card will-change-transform"
