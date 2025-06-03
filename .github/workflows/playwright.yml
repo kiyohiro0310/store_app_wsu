@@ -4,6 +4,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+env:
+  secret: workflow-secret
+
 jobs:
   test:
     timeout-minutes: 60
