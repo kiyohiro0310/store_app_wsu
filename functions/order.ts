@@ -34,7 +34,7 @@ export async function addOrderItemToDB(orderItem: OrderItem, userId: string, pro
                 where: { id: existingItem.id },
                 data: { 
                     quantity: existingItem.quantity + orderItem.quantity,
-                    priceAtPurchase: orderItem.pricePurchase // Update price in case it changed
+                    priceAtPurchase: orderItem.priceAtPurchase // Update price in case it changed
                 }
             });
 
@@ -42,7 +42,7 @@ export async function addOrderItemToDB(orderItem: OrderItem, userId: string, pro
             order = await prisma.order.update({
                 where: { id: currentOrder.id },
                 data: {
-                    total: currentOrder.total + (orderItem.pricePurchase * orderItem.quantity)
+                    total: currentOrder.total + (orderItem.priceAtPurchase * orderItem.quantity)
                 }
             });
 
@@ -73,7 +73,7 @@ export async function addOrderItemToDB(orderItem: OrderItem, userId: string, pro
                 id: currentOrder.id
             },
             data: {
-                total: currentOrder.total + (orderItem.pricePurchase * orderItem.quantity)
+                total: currentOrder.total + (orderItem.priceAtPurchase * orderItem.quantity)
             }
         });
     } else {
@@ -81,7 +81,7 @@ export async function addOrderItemToDB(orderItem: OrderItem, userId: string, pro
         order = await prisma.order.create({
             data: {
                 status: "PENDING",
-                total: orderItem.pricePurchase * orderItem.quantity,
+                total: orderItem.priceAtPurchase * orderItem.quantity,
                 userId: user.id
             }
         });
@@ -91,7 +91,7 @@ export async function addOrderItemToDB(orderItem: OrderItem, userId: string, pro
     await prisma.orderItem.create({
         data: {
             orderId: order.id,
-            priceAtPurchase: orderItem.pricePurchase,
+            priceAtPurchase: orderItem.priceAtPurchase,
             productId,
             quantity: orderItem.quantity
         }
