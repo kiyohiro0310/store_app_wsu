@@ -43,7 +43,6 @@ const OrderCompletePage = () => {
     return <Loading />;
   }
 
-  console.log('Order Details:', orderDetails); // Debug log
 
   return (
     <AppLayout>

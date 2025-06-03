@@ -135,7 +135,6 @@ export async function DELETE(
 
     return dataResponse(200, { message: "Product deleted successfully" });
   } catch (error) {
-    console.error("Error deleting product:", error);
     return errorResponse(500, "Failed to delete product");
   }
 }
