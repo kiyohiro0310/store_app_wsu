@@ -15,7 +15,7 @@ const Loading = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div data-testid="loading" className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="flex items-center space-x-2">
         {[...Array(3)].map((_, index) => (
           <div

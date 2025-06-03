@@ -125,7 +125,7 @@ const ProductDetailPage = () => {
   return (
     <AppLayout>
       <ToastContainer />
-      <div className="max-w-6xl mx-auto py-12">
+      <div data-testid="product-detail" className="max-w-6xl mx-auto py-12">
         <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
           {/* Product Image Section */}
           <div className="w-full md:w-1/3">
