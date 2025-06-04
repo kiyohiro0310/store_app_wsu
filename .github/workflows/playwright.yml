@@ -20,6 +20,19 @@ jobs:
       run: npm run build
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+    - name: Start application
+      run: npm start &
+    - name: Wait for application to start
+      run: |
+        timeout=60
+        while ! curl -s http://localhost:3000 > /dev/null; do
+          sleep 1
+          timeout=$((timeout-1))
+          if [ $timeout -le 0 ]; then
+            echo "Application failed to start"
+            exit 1
+          fi
+        done
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4
