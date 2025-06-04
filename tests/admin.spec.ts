@@ -1,52 +1,50 @@
 import { expect } from "playwright/test";
 import { test } from "./fixtures";
 
-test.beforeEach(async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Sign In" }).click();
-  await page.waitForTimeout(500);
+test("Shows admin dashboard", async ({ page }) => {
+  // Wait for admin page to load and check authorization
+  await page.waitForLoadState('networkidle');
+  
+  // Verify admin dashboard elements
+  await expect(page.getByText("Manage Products")).toBeVisible();
+  await expect(page.getByText("View Orders")).toBeVisible();
 });
 
-test("Can Login", async ({ page }) => {
-  await page.getByLabel("Email ").click();
-  await page.getByLabel("Email").fill("admin@example.com");
-  await page.getByLabel("Password").click();
-  await page.getByLabel("Password").fill("test");
-  await page.getByRole("button", { name: "Login" }).click();
-  await page.waitForURL("/");
-  await page.waitForTimeout(500);
-  await expect(page.getByText("Discover", { exact: false })).toBeVisible();
-});
+test("Create and delete product", async ({ page }) => {
+  // Navigate to products page
+  await page.goto("/admin/products");
+  await page.waitForLoadState('networkidle');
+  
+  // Wait for and click add product button
+  const addButton = page.getByRole("button", { name: "Add New Product" });
+  await addButton.waitFor({ state: 'visible' });
+  await addButton.click();
+  
+  // Fill in product details
+  await page.locator('input[name="name"]').fill("Test123");
+  await page.locator('input[name="category"]').fill("monitor");
+  await page.locator('input[name="price"]').fill("1230");
+  await page.locator('textarea[name="description"]').fill("124");
+  await page.locator('input[name="tags"]').fill("test");
+  await page.locator('input[name="quantity"]').fill("100");
+  
+  // Click the create button
+  await page.getByRole("button", { name: "Create Product" }).click();
+  
+  // Wait for success message
+  await page.waitForSelector('text=Product created successfully');
+  
+  // Verify the product was created
+  await expect(page.getByText("Test123")).toBeVisible();
 
-test("Shows home screen to authorised user", async ({ userPage }) => {
-  await userPage.goto("/");
-  await userPage.waitForURL("/");
-  // shows title
-  await expect(userPage.getByText("Discover")).toBeVisible();
-});
-
-test("Show admin dashboard", async ({ userPage }) => {
-  await userPage.goto("/admin");
-  await expect(userPage.getByText("Admin", { exact: false })).toBeVisible();
-});
-
-// TODO: Test admin can create product
-test("Create product", async ({ userPage }) => {
-  await userPage.goto("/admin/products");
-  await userPage.getByRole("button", { name: "Add New Product" }).click();
-  await userPage.locator('input[name="name"]').click();
-  await userPage.locator('input[name="name"]').fill("Test123");
-  await userPage.locator('input[name="category"]').click();
-  await userPage.locator('input[name="category"]').fill("monitor");
-  await userPage.locator('input[name="price"]').click();
-  await userPage.locator('input[name="price"]').fill("1230");
-  await userPage.getByRole("button", { name: "Upload Image" }).click();
-  await userPage.getByRole("button", { name: "Upload Image" }).click();
-  await userPage.locator('textarea[name="description"]').click();
-  await userPage.locator('textarea[name="description"]').fill("124");
-  await userPage.locator('input[name="tags"]').click();
-  await userPage.locator('input[name="tags"]').fill("test");
-  await userPage.locator('input[name="quantity"]').click();
-  await userPage.locator('input[name="quantity"]').fill("100");
-  await userPage.getByRole("button", { name: "Create Product" }).click();
+  // Find and click the delete button for the product
+  const deleteButton = page.locator('tr', { hasText: 'Test123' })
+    .locator('button[aria-label="Delete"]');
+  await deleteButton.click();
+  
+  // Handle the confirmation dialog
+  page.on('dialog', dialog => dialog.accept());
+    
+  // Verify the product was removed
+  await expect(page.getByText("Test123")).not.toBeVisible();
 });

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { Dispatch, useRef, useEffect } from "react";
+import React, { Dispatch, useRef, useEffect, useMemo } from "react";
 import { StarRating } from "../fragments/ui/StarRating";
-import { Filter, Product } from "@/types";
-import Loading from "../fragments/ui/Loading";
+import { Product } from "@/types";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 
@@ -13,8 +12,6 @@ const Products = ({
   items: Product[];
 }) => {
   const productsRef = useRef(null);
-  
-
 
   useGSAP(() => {
     // Use a single batch animation for better performance

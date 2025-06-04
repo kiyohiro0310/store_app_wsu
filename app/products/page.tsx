@@ -100,6 +100,7 @@ const page = () => {
           {/* Tag Dropdown with Reset */}
           <div className="flex items-center space-x-2">
             <select
+              data-testid="tag-filter"
               value={filter.tag}
               onChange={(e) => setFilter({ ...filter, tag: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -117,6 +118,7 @@ const page = () => {
           {/* Name Search with Reset */}
           <div className="flex items-center space-x-2">
             <input
+              data-testid="search-filter"
               type="text"
               placeholder="Search by name..."
               value={filter.name}

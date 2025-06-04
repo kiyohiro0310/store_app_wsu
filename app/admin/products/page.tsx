@@ -29,7 +29,7 @@ const page = () => {
     price: "",
     currency: "USD",
     category: "",
-    imageUrl: "",
+    imageUrl: "/imgs/icon.png",
     inStock: true,
     quantity: "0",
     tags: "",
@@ -451,6 +451,7 @@ const page = () => {
                       </svg>
                     </button>
                     <button
+                      aria-label="Delete"
                       onClick={() => handleDeleteProduct(product.id!)}
                       className="text-red-600 hover:text-red-900 transition-colors duration-200"
                     >

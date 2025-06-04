@@ -1,25 +1,26 @@
-import { test as base, Page } from "playwright/test";
+import { test as baseTest, expect } from "playwright/test";
 
-type MyFixtures = {
-  // adminPage: Page;
-  userPage: Page;
-};
-
-export const test = base.extend<MyFixtures>({
-  // adminPage: async ({ browser }, use) => {
-  //   const context = await browser.newContext({
-  //     storageState: ".auth/admin.json",
-  //   });
-  //   const adminPage = await context.newPage(); //  new AdminPage(await context.newPage());
-  //   await use(adminPage);
-  //   await context.close();
-  // },
-  userPage: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      storageState: ".auth/user.json",
-    });
-    const userPage = await context.newPage(); //  new UserPage(await context.newPage());
-    await use(userPage);
-    await context.close();
+const authTest = baseTest.extend({
+  page: async ({ page }, use) => {
+    // Sign in with our account.
+    await page.goto("/login");
+    await page.getByLabel("Email").fill("admin@example.com");
+    await page.getByLabel("Password").fill("test");
+    await page.getByRole("button", { name: "Login" }).click();
+    
+    // Wait for successful login and redirect
+    await page.waitForURL("/");
+    await expect(page.getByText("Discover", { exact: false })).toBeVisible();
+    
+    // Store auth state
+    await page.context().storageState({ path: 'playwright/.auth/user.json' });
+    
+    // Navigate to admin page
+    await page.goto("/admin");
+    
+    // Use signed-in page in the test.
+    await use(page);
   },
 });
+
+export const test = authTest;

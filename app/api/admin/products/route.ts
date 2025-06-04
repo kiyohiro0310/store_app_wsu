@@ -48,7 +48,6 @@ export async function POST(req: Request) {
 
   try {
     const productData = await req.json();
-    console.log("Received product data:", productData);
     
     // Get admin user for product ownership
     const session = await getServerSession(authOptions);
@@ -68,7 +67,7 @@ export async function POST(req: Request) {
         price: productData.price,
         currency: productData.currency,
         category: productData.category,
-        imageUrl: productData.imageUrl,
+        imageUrl: productData.imageUrl || "/imgs/icon.png",
         inStock: productData.inStock,
         quantity: productData.quantity,
         tags: productData.tags,
