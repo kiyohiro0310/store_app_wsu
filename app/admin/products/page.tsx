@@ -451,7 +451,7 @@ const page = () => {
                       </svg>
                     </button>
                     <button
-                      aria-label="Delete"
+                      data-testid={`delete-button-${product.name}`}
                       onClick={() => handleDeleteProduct(product.id!)}
                       className="text-red-600 hover:text-red-900 transition-colors duration-200"
                     >

@@ -13,12 +13,18 @@ test("Shows admin dashboard", async ({ page }) => {
 test("Create and delete product", async ({ page }) => {
   // Navigate to products page
   await page.goto("/admin/products");
+  
+  // Wait for loading state to complete
+  await page.waitForSelector('table', { state: 'visible' });
   await page.waitForLoadState('networkidle');
   
   // Wait for and click add product button
   const addButton = page.getByRole("button", { name: "Add New Product" });
   await addButton.waitFor({ state: 'visible' });
   await addButton.click();
+  
+  // Wait for modal to be visible
+  await page.waitForSelector('form');
   
   // Fill in product details
   await page.locator('input[name="name"]').fill("Test123");
@@ -31,20 +37,21 @@ test("Create and delete product", async ({ page }) => {
   // Click the create button
   await page.getByRole("button", { name: "Create Product" }).click();
   
-  // Wait for success message
+  // Wait for success message and product to be visible
   await page.waitForSelector('text=Product created successfully');
-  
-  // Verify the product was created
   await expect(page.getByText("Test123")).toBeVisible();
 
   // Find and click the delete button for the product
-  const deleteButton = page.locator('tr', { hasText: 'Test123' })
-    .locator('button[aria-label="Delete"]');
+  const deleteButton = page.getByTestId("delete-button-Test123");
+  await deleteButton.waitFor({ state: 'visible' });
+  
+  // Set up dialog handler before clicking delete
+  page.on('dialog', dialog => dialog.accept());
+  
+  // Click delete and wait for confirmation
   await deleteButton.click();
   
-  // Handle the confirmation dialog
-  page.on('dialog', dialog => dialog.accept());
-    
-  // Verify the product was removed
+  // Wait for success message and verify product is removed
+  await page.waitForSelector('text=Product deleted successfully');
   await expect(page.getByText("Test123")).not.toBeVisible();
 });
