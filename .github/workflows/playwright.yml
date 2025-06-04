@@ -12,6 +12,7 @@ jobs:
     env:
       NEXTAUTH_SECRET: "test-secret"
       NEXTAUTH_URL: "http://localhost:3000"
+      DATABASE_URL: prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiNDhmOWM4Y2UtZDIyOS00ZTZkLWIzMDAtZTE4YzM4ZGRkOTNjIiwidGVuYW50X2lkIjoiMDUyNDlkYzNkM2NmNjk5ZWVhMTQ2NTkwYzZmMzJlODIzMGI2YzljMWI5YWU5ZmMzOWJiYTEyN2QzZDk1MmMwMiIsImludGVybmFsX3NlY3JldCI6ImRmMDk2Mjk2LWIyYmQtNDViYy1iNGYyLTE3ZmE3ZjY2MTJjMCJ9.dhoaMH9a-C0HlovOpDwkGdILB5ug3isUIAva0orSRmM
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
