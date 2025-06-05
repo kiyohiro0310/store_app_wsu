@@ -15,7 +15,7 @@ test("Create and delete product", async ({ page }) => {
   await page.goto("/admin/products");
   
   // Wait for and click add product button
-  const addButton = page.getByRole("button", { name: "Add New Product" });
+  const addButton = page.getByTestId("add-product");
   await addButton.click();
   // Fill in product details
   await page.locator('input[name="name"]').fill("Test123");
