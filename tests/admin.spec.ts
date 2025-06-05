@@ -16,12 +16,7 @@ test("Create and delete product", async ({ page }) => {
   
   // Wait for and click add product button
   const addButton = page.getByRole("button", { name: "Add New Product" });
-  await addButton.waitFor({ state: 'visible' });
   await addButton.click();
-  
-  // Wait for modal to be visible
-  await page.waitForSelector('form');
-  
   // Fill in product details
   await page.locator('input[name="name"]').fill("Test123");
   await page.locator('input[name="category"]').fill("monitor");
