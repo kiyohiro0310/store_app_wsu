@@ -72,7 +72,7 @@ test.describe("Admin Products Management", () => {
     await page.waitForLoadState('networkidle');
 
     // Update product details
-    await page.getByLabel("Product Name").fill("Updated Product Name");
+    await page.getByLabel("Product Name").fill("Test1234");
     await page.getByLabel("Price").fill("149.99");
 
     // Submit the form
@@ -98,7 +98,7 @@ test.describe("Admin Products Management", () => {
     page.on("dialog", dialog => dialog.accept());
     
     // Click delete button
-    await page.getByTestId("delete-button-Test Product").first().click();
+    await page.getByTestId("delete-button-Test1234").first().click();
     
     // Wait for success message
     await expect(page.getByText("Product deleted successfully")).toBeVisible({ timeout: 15000 });
@@ -110,14 +110,14 @@ test.describe("Admin Products Management", () => {
     
     // Type in search box
     const searchInput = page.locator("input[type='search']");
-    await searchInput.fill("Test Product");
+    await searchInput.fill("4k");
     await searchInput.press("Enter");
     
     // Wait for table to update
     await page.waitForTimeout(2000);
     
     // Verify filtered results
-    await expect(page.locator("td").filter({ hasText: "Test Product" }).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("td").filter({ hasText: "4K Monitor" }).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("can filter products by status", async ({ page }) => {
