@@ -6,7 +6,6 @@ import Loading from "@/components/fragments/ui/Loading";
 import { fetchUserSession } from "@/components/auth/CheckLogin";
 import { useParams } from "next/navigation";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { getOrderById } from "@/functions/order";
 import ErrorPage from "@/components/fragments/ui/Error";
 import Link from "next/link";
 

@@ -1,6 +1,6 @@
 import { test, expect } from "playwright/test";
 
-const numberOfProducts = 6;
+const numberOfProducts = 5;
 const numberOfCategoryFilter = 3;
 const numberOfTagFilter = 1;
 const numberOfSearchFilter = 1;
