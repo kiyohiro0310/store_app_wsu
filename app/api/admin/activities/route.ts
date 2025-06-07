@@ -66,7 +66,6 @@ export async function GET() {
       orderBy: {
         releaseDate: "desc"
       },
-      take: 10
     });
 
     // Format orders as activities
@@ -102,7 +101,6 @@ export async function GET() {
     // Combine and sort all activities by date
     const allActivities = [...orderActivities, ...productActivities]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10); // Get only the 10 most recent activities
 
     return dataResponse(200, allActivities);
   } catch (error) {
