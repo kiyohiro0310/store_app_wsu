@@ -57,7 +57,7 @@ test.describe("Admin Products Management", () => {
 
     // Wait for table to update and verify new product
     await page.waitForSelector("table", { timeout: 15000 });
-    await expect(page.getByText("Test Product")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("td").filter({ hasText: "Test Product" }).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("can edit an existing product", async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe("Admin Products Management", () => {
     await page.waitForSelector("table tbody tr", { timeout: 15000 });
     
     // Click edit button on first product
-    await page.getByTestId("edit-button-Test Product").click();
+    await page.getByTestId("edit-button-Test Product").first().click();
     
     // Wait for form to be visible and params to be resolved
     await page.waitForSelector("form", { timeout: 15000 });
@@ -83,7 +83,7 @@ test.describe("Admin Products Management", () => {
 
     // Wait for table to update and verify changes
     await page.waitForSelector("table", { timeout: 15000 });
-    await expect(page.getByText("Updated Product Name")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("td").filter({ hasText: "Updated Product Name" }).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("can delete a product", async ({ page }) => {
@@ -98,7 +98,7 @@ test.describe("Admin Products Management", () => {
     page.on("dialog", dialog => dialog.accept());
     
     // Click delete button
-    await page.getByTestId("delete-button-Test Product").click();
+    await page.getByTestId("delete-button-Test Product").first().click();
     
     // Wait for success message
     await expect(page.getByText("Product deleted successfully")).toBeVisible({ timeout: 15000 });
@@ -117,7 +117,7 @@ test.describe("Admin Products Management", () => {
     await page.waitForTimeout(2000);
     
     // Verify filtered results
-    await expect(page.getByText("Test Product")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("td").filter({ hasText: "Test Product" }).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("can filter products by status", async ({ page }) => {

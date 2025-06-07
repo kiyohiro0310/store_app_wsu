@@ -13,6 +13,7 @@ export function Header() {
   const [isClient, setIsClient] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use localStorage to maintain session state across page reloads
   useEffect(() => {
@@ -64,14 +65,13 @@ export function Header() {
             <Image src={"/imgs/icon.png"} alt="" width={30} height={30} />
             MyStore
           </Link>
-          <nav className="space-x-4">
+          <nav className="hidden md:flex space-x-4">
             <Link href="/" className="text-gray-600 hover:text-black">
               Home
             </Link>
             <Link href="/products" className="text-gray-600 hover:text-black">
               Products
             </Link>
-            {/* Render empty space where buttons will appear to prevent layout shift */}
             <span className="inline-block w-20 h-10"></span>
           </nav>
         </div>
@@ -83,7 +83,7 @@ export function Header() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md relative">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
         <Link
           href="/"
@@ -92,7 +92,22 @@ export function Header() {
           <Image src={"/imgs/icon.png"} alt="" width={30} height={30} />
           MyStore
         </Link>
-        <nav className="space-x-4">
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <div className="w-6 h-5 flex flex-col justify-between">
+            <span className={`w-full h-0.5 bg-gray-600 transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+            <span className={`w-full h-0.5 bg-gray-600 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
+            <span className={`w-full h-0.5 bg-gray-600 transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+          </div>
+        </button>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex space-x-4 items-center">
           <Link href="/" className="text-gray-600 hover:text-black">
             Home
           </Link>
@@ -137,6 +152,87 @@ export function Header() {
             </>
           )}
         </nav>
+
+        {/* Mobile Menu Overlay */}
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 md:hidden ${
+            isMobileMenuOpen ? 'opacity-100 z-40' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+
+        {/* Mobile Menu Panel */}
+        <div
+          className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:hidden z-50 ${
+            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="p-4 flex flex-col space-y-4">
+            <Link
+              href="/"
+              className="text-gray-600 hover:text-black py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              href="/products"
+              className="text-gray-600 hover:text-black py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Products
+            </Link>
+
+            {isLoading ? (
+              <AuthLoader />
+            ) : !isAuthenticated ? (
+              <button
+                onClick={() => {
+                  signIn();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="cursor-pointer px-4 py-2 bg-yellow-400 text-black rounded-md hover:bg-yellow-500 font-bold transition duration-200"
+              >
+                Sign In
+              </button>
+            ) : (
+              <>
+                {(isAdmin || session?.user?.name?.toLowerCase() === "admin") && (
+                  <Link
+                    href="/admin"
+                    className="text-gray-600 hover:text-black py-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Admin
+                  </Link>
+                )}
+
+                <Link
+                  href="/cart"
+                  className="text-gray-600 hover:text-black py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Cart
+                  {cart?.cartItems?.items?.length && (
+                    <span className="relative text-black text-xs -left-1 -top-3 rounded-2xl px-1 bg-yellow-500 font-bold">
+                      {cart.cartItems.items.length}
+                    </span>
+                  )}
+                </Link>
+
+                <button
+                  className="cursor-pointer px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 font-bold transition duration-200"
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Sign out
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </header>
   );
