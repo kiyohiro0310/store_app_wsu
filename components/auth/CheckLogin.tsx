@@ -19,18 +19,6 @@ async function getSessionWithCache() {
     const session = await getSession();
     sessionCache = session;
     lastFetchTime = now;
-
-    // Update localStorage if authenticated
-    if (session?.user) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("authState", "authenticated");
-        localStorage.setItem(
-          "userName",
-          session.user.name?.toLowerCase() || ""
-        );
-      }
-    }
-
     return session;
   } catch (error) {
     console.error("Error fetching session:", error);
