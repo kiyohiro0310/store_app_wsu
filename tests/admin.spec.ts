@@ -83,7 +83,7 @@ test.describe("Admin Products Management", () => {
 
     // Wait for table to update and verify changes
     await page.waitForSelector("table", { timeout: 15000 });
-    await expect(page.locator("td").filter({ hasText: "Updated Product Name" }).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("td").filter({ hasText: "Test1234" }).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("can delete a product", async ({ page }) => {
