@@ -98,7 +98,7 @@ test.describe("Admin Products Management", () => {
     page.on("dialog", dialog => dialog.accept());
     
     // Click delete button
-    await page.getByTestId("delete-button-Test Product").first().click();
+    await page.getByTestId("delete-button-Test Product").click();
     
     // Wait for success message
     await expect(page.getByText("Product deleted successfully")).toBeVisible({ timeout: 15000 });
